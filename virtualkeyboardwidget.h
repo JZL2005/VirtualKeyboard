@@ -11,21 +11,32 @@
 #include <QMap>
 #include "keyboardlayout.h" // 包含键盘布局定义
 
-// --- Windows API 类型前向声明 ---
+// --- 前向声明 Windows API 类型 ---
 // 避免在头文件中包含庞大的 windows.h
 #ifdef _WIN32
+#ifndef _WINDEF_ // 简单检查是否已包含，避免重复定义
 struct HWND__; typedef HWND__* HWND;     // 窗口句柄
 struct tagINPUT; typedef tagINPUT INPUT; // SendInput 函数需要的结构体
+// 如果需要 Get/SetWindowLongPtr, 可能需要包含 windef.h 或 windows.h 的一部分
+// 或者直接定义类型
+#ifndef LONG_PTR // 通常在 basetsd.h 中定义
+#if defined(_WIN64)
+    typedef __int64 LONG_PTR;
+#else
+    typedef long LONG_PTR;
 #endif
+#endif // LONG_PTR
+#endif // _WINDEF_
+#endif // _WIN32
 
 // 主虚拟键盘窗口类
 class VirtualKeyboardWidget : public QWidget {
-Q_OBJECT // Qt 元对象系统宏
+Q_OBJECT // 启用 Qt 元对象系统 (信号/槽)
 
 public:
     // 构造函数
     explicit VirtualKeyboardWidget(QWidget *parent = nullptr);
-    // 析构函数 (使用默认实现)
+    // 析构函数 (默认实现即可)
     ~VirtualKeyboardWidget() override = default;
 
 protected:
@@ -48,7 +59,9 @@ private:
     // 使用 Windows API 模拟按键事件
     void simulateKey(int vkCode, int scanCode, bool press, bool isExtended);
     // SendInput API 的包装函数，包含日志记录
-    void sendInputWrapper(INPUT input);
+    void sendInputWrapper(INPUT input, int vkCodeForLog, bool pressForLog);
+    // 应用窗口样式（包括WS_EX_NOACTIVATE）
+    void applyWindowStyles();
 
     // --- UI 元素指针 ---
     QVBoxLayout *outerLayout;       // 最外层垂直布局 (包含键盘和滑块)

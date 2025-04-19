@@ -33,6 +33,7 @@ target_link_libraries(VirtualKeyboard PRIVATE
 # 特定于平台的设置 (Windows)
 if(WIN32)
     # 链接 user32.lib，用于 SendInput, GetKeyState, GetForegroundWindow 等 Windows API 函数
+    # 链接 dwmapi.lib 如果需要更高级的窗口操作 (此例中暂时不用)
     target_link_libraries(VirtualKeyboard PRIVATE user32)
 
     # 可选：将子系统设置为 WINDOWS 以隐藏控制台窗口
@@ -46,4 +47,3 @@ endif()
 
 # 如果你创建了资源文件 (例如 .qrc)，可以在这里添加
 # qt_add_resources(VirtualKeyboard "resources.qrc")
-
